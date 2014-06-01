@@ -1,0 +1,170 @@
+<%= javascript_include_tag "http://code.highcharts.com/highcharts.js" %>
+<%= javascript_include_tag "http://code.highcharts.com/modules/exporting.js" %>
+
+<div id="container_kpi" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<% xArray = [] %>
+<% xArrayKey = [] %>
+<% i=1 %>
+<% v=1 %>
+
+<% while v < @number_of_day_inHour %>
+    <% v = i*8 %>
+    <% xArray << v %>
+    <% xArrayKey = i %>
+    <% i += 1 %>
+<% end %> 
+
+<% yArray = [] %>
+<% i=1 %>
+<% v=1 %>
+<% while i< @point %>
+    <% v= i*10 %>
+    <% yArray << v %>
+    <% i += 1 %> 
+<% end %>
+
+<script type= "text/javascript" >
+    var deadline = <%= @number_of_day %>;
+    var dayPass =  <%= @projectTask_Daypass %>;
+    var donePerday = <%= @day_Doneper %>;
+    var practicalDay= <%= @practical_daynumber %>;
+    var issue_donePerday = <%= @issue_day_Doneper%>;
+    
+    //document.write(donePerday);
+    //document.write("\n");
+    //document.write(issue_donePerday);
+    //document.write(soFarTaskProgress);
+    //document.write(unitToAccomplish);
+    $(function () {
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+        var chart;
+        $('#container_kpi').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+            },
+            title: {
+                text: 'KPI'
+            },
+            xAxis: {
+                title:{
+                    text: 'Project Duration'
+                },
+                min: 0,
+                max: deadline,
+                tickInterval: 1
+            },
+            yAxis: {
+                title: {
+                    text: 'Percentage'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#D2691E'
+                }],
+                min: 0,
+                max: 100,
+                tickInterval: 10
+            },
+            legend: {
+                enabled: true
+            },
+            exporting: {
+                enabled: true
+            },
+            series: [{
+                name: 'Standard',
+                color: '#008000',
+                data: (function () {
+                    var data = [],                   
+                        j;
+                    for (j = 0; j <= deadline; j+=0.5) {
+                        var donePer = (100.0*j)/deadline;
+                        data.push({
+                            x: j,
+                            y: donePer
+                        });
+                    }
+                    return data;
+                })()
+            },
+            {
+                name: 'Task',
+                color: '#000000',
+                data: (function(){
+                    var data = [], j;
+                    for(j=0;j <= dayPass ;j+=1)
+                        data.push({x: j, y: donePerday[j] });
+                    return data;
+                })()
+            }
+            ,
+            {
+                name: 'Issue',
+                color: '#FF0101',
+                data: (function(){
+                    var data= [],j;
+                    for(j=0;j<=dayPass;j+=1)
+                        data.push({x:j, y: issue_donePerday[j] });
+                    return data;
+                })()
+            }
+            ]
+        });
+    });
+});
+</script>
+
+
+<!--script>
+$(function () {
+        $('#container_kpi').highcharts({
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'KEY PERFORMANCE INDICATOR'
+            },
+            xAxis: {
+                title: {
+                    text: 'PROJECT DURATION TIME'
+                },
+                categories: <%= xArrayKey %> ,
+                level : {
+                    step : 1
+                } 
+            },
+            yAxis: {
+                title: {
+                    text: 'DONE PERCENTAGE(%)'
+                },
+                min :0,
+                max :100,
+                tickInterval: 10
+            },
+          
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [    
+                {
+                name: 'Standard',
+                data: [0,10,20,30,40]
+            }
+            ]
+        });
+    });
+</script-->
